@@ -11,6 +11,7 @@ from youtube_transcript_api.formatters import TextFormatter
 import streamlit as st
 
 openai.api_key = 'OPENAI API KEY'
+
 def get_transcript(url):
     try:
         url_data = urlparse(url)
