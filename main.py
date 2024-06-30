@@ -10,14 +10,14 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 import streamlit as st
 
-openai.api_key = 'OPENAI API KEY'
+openai.api_key = 'sk-proj-CpNemz0YDojvoNiBVMkAT3BlbkFJTwGgK0sv1UmubB4wRqw8'
 
 def get_transcript(url):
     try:
         url_data = urlparse(url)
         video_id = parse_qs(url_data.query)["v"][0]
-    except:
-        print("ERROR ! INVALID LINK !?!")
+    except Exception as e:
+        print("ERROR ! INVALID LINK !?!", e)
         return (-1,-1)
     if not video_id:
         print('Video ID not found.')
@@ -26,10 +26,10 @@ def get_transcript(url):
         formatter = TextFormatter()
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
         text = formatter.format_transcript(transcript)
-        text = re.sub('\s+', ' ', text).replace('--', '')
+        text = re.sub(r'\s+', ' ', text).replace('--', '')
         return video_id, text
-    except:
-        print('Error downloading transcript')
+    except Exception as e:
+        print('Error downloading transcript',e)
         return (-1,-1)
       
 def gpt3_completion(prompt, tokens):
@@ -45,8 +45,8 @@ def gpt3_completion(prompt, tokens):
                 top_p=1.0,
                 frequency_penalty=0.25,
                 presence_penalty=0.0)
-            text = response['choices'][0]['message']['content'].strip()
-            text = re.sub('\s+', ' ', text)
+            text = response.choices[0].message.content.strip()
+            text = re.sub(r'\s+', ' ', str(text))
             if not text:
                 retry += 1
                 continue
@@ -79,9 +79,10 @@ def ask_gpt(text, job='SUMMARY'):
         results.append(output)
         print(f'{i+1} of {len(chunks)}\n{output}\n\n\n')
     return results
-
+    
 count = 0
 def main():
+    summary = ""
     global count
     st.title("YouTube Video Summarizer")
     st.write("Welcome. Please enter a YouTube Video Link and Enter to obtain its Summary")
@@ -101,6 +102,7 @@ def main():
             summary = '\n\n'.join(results)
             if len(results) > 1:
                 summary = ask_gpt(summary, 'REWRITE')
+                summary = '\n\n'.join(summary)
         st.text_area("YouTube Summarizer", value=summary, height=101, max_chars=None, key=f"chatbot_response_{count}")
 
 if __name__ == '__main__':
