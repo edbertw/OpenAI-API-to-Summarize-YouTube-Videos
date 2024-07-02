@@ -11,6 +11,7 @@ from youtube_transcript_api.formatters import TextFormatter
 import streamlit as st
 
 # TEST OPEN AI API KEY
+# KEY HAS BEEN DISABLED
 openai.api_key = 'sk-proj-CpNemz0YDojvoNiBVMkAT3BlbkFJTwGgK0sv1UmubB4wRqw8'
 
 def get_transcript(url):
